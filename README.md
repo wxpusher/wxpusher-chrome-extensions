@@ -1,5 +1,5 @@
 # wxpusher-chrome-extensions
-WxPusher Chrome版客户端，兼容Window和Mac的谷歌浏览器，打开浏览器，就可以收到推送消息。
+WxPusher Chrome版客户端，兼容Window和Mac的谷歌浏览器，开着浏览器即可收到推送消息。
 
 安装步骤：
 1、下载本项目并解压到适当位置；
