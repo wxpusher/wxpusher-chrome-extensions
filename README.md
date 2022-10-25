@@ -10,5 +10,5 @@ WxPusher Chrome版客户端，兼容Window和Mac的谷歌浏览器，开着浏�
 6、安装完成。  
   
 说明：  
-1、安装完成后可能出现“Manifest version 2 is deprecated, and support will be removed in 2023. See https://developer.chrome.com/blog/mv2-transition/ for more details.”字样提示，无需理会。  
+1、安装完成后可能出现“Manifest version 2 is deprecated, and support will be removed in 2023. See https://developer.chrome.com/blog/mv2-transition/ for more details.”字样提示，无需理会；  
 2、如需更换账号，请卸载插件后重新安装。  
