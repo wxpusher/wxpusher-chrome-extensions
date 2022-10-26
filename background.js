@@ -61,15 +61,16 @@ function initWxPusher(onmessage, hearttime, timeout){
 			}, hearttime);
 		}
 		setTimeout(function(){
-			if(ws.getState() !== 201){
-				showNotification('WxPusher', '登录失败！');
+			if(ws.readyState !== 200){
+				showNotification('WxPusher', '登录失败，状态码：' + ws.readyState);
 			}
 		}, 10000);
 	});
 	ws.init = function(){
-		ws.readyState = 100;
+		ws.readyState = 0;
 		socket = new WebSocket(url_msg);
 		socket.onopen = function(e){
+			ws.readyState = 100;
 			console_log('webSocket连接成功！');
 		};
 		socket.onmessage = function(e){
@@ -87,6 +88,7 @@ function initWxPusher(onmessage, hearttime, timeout){
 						ws.init();
 					}
 					else{
+						ws.readyState = 3;
 						Ajax('POST', url_reg, JSON.stringify({
 							'code': localStorage['wxpusher_code'] || '',
 							'deviceName': deviceName,
@@ -124,14 +126,8 @@ function initWxPusher(onmessage, hearttime, timeout){
 			}
 		};
 	};
-	ws.getState = function(){
-		return (ws.readyState + socket.readyState);
-	};
 	ws.send = function(msg){
-		if(ws.getState() !== 201){
-			console_log('WxPusher未登录，状态码：' + ws.getState());
-		}
-		else if(typeof socket.readyState === 'undefined'){
+		if(typeof socket.readyState === 'undefined'){
 			console_log('webSocket无效重连！');
 			ws.init();
 		}
