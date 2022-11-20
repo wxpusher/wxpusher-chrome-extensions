@@ -1,64 +1,53 @@
 <!DOCTYPE html>
 <header>
-	<title>设置中心</title>
+	<title>WxPusher消息推送平台</title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8">
 	<style type="text/css">
-
+		.line {
+			padding-top: 3px;
+			padding-bottom: 3px;
+		}
 	</style>
 </header>
 
-<body>
+<body
+	style="display: flex;flex-direction: column;align-items: center;min-width:250px;padding-top: 5px;padding-bottom: 5px;">
+	<input type="hidden" id="wxpusher_code" />
 	<div style="display: flex; flex-direction: column;align-items: center;">
-		<a href="https://wxpusher.zjiecode.com/">
-			<p style="color:red;font-size: 1.2em; font-weight:bold;">欢迎使用WxPusher消息推送平台</p>
+		<a href="https://wxpusher.zjiecode.com/" target="_blank" style="margin-bottom: 5px;">
+			<span style="color:red;font-size: 1.2em; font-weight:bold;">欢迎使用WxPusher消息推送平台</span>
 		</a>
-		<div style="display: flex; flex-direction: column;align-items: center;">
+		<div id="wxpusher_qrcode_container" style="display: none; flex-direction: column;align-items: center;">
 			请使用微信扫码下方二维码登陆
-			<img id="wxpusher_qrcode"
-				src="http://wxpusher.test.zjiecode.com/api/qrcode/At5Q3Ga2mnxd9c03YLSRDKWsTQo4OVgbwZcbI6f6JAB2Y8dHaxp2LvmrxQH5lBvO.jpg"
-				alt="登录二维码" width="120" height="120"><br>
+			<img id="wxpusher_qrcode" alt="登录二维码" width="120" height="120"><br>
 		</div>
-		<div style="display: flex; flex-direction: row;align-items: center; justify-content: space-between;">
-			声音提醒：<input type="radio" name="sound" value="sound_yes" id="sound"><label for="sound_yes">打开</label><input
-				type="radio" name="sound" value="sound_no" id="sound_no" checked="checked"><label
-				for="sound_no">关闭</label>
+		<div id="tips" style="color:red;margin-bottom: 10px; display: none;">提示信息</div>
+		<div class="line"
+			style="display: flex; flex-direction: row;align-self:flex-start; justify-content: space-between;">
+			声音提醒：<input type="radio" name="sound" value="sound_yes" id="sound_yes" />
+			<label for="sound_yes">打开</label>
+			<input type="radio" name="sound" value="sound_no" id="sound_no" checked="checked" />
+			<label for="sound_no">关闭</label>
 		</div>
-		<div style="display: flex; flex-direction: row;align-items: center; justify-content: space-between;">
-			通知提醒：<input type="radio" name="sound" value="sound_yes" id="sound"><label for="sound_yes">打开</label><input
-				type="radio" name="sound" value="sound_no" id="sound_no" checked="checked"><label
-				for="sound_no">关闭</label>
+		<div class="line"
+			style="display: flex; flex-direction: row;align-self:flex-start; justify-content: space-between;">
+			通知提醒：<input type="radio" name="notification" value="notification_yes" id="notification_yes">
+			<label for="notification_yes">打开</label>
+			<input type="radio" name="notification" value="notification_no" id="notification_no" checked="checked">
+			<label for="notification_no">关闭</label>
 		</div>
-		<div style="align-self: flex-start;">当前版本：V0.0.1</div>
-		<div style="align-self: flex-start;">官网地址：<a href="https://wxpusher.zjiecode.com/">wxpusher.zjiecode.com</a>
+		<div class="line" style="align-self: flex-start;">登陆状态：<span id="user-status"></span></div>
+		<div class="line" style="align-self: flex-start;">链接状态：<span id="ws-connect"></span></div>
+		<div class="line" style="align-self: flex-start;">当前版本：<span id="version"></span></div>
+		<div class="line" style="align-self: flex-start;">官网地址：<a
+				href="https://wxpusher.zjiecode.com/">wxpusher.zjiecode.com</a>
 		</div>
 	</div>
-
-
-
-
-
-	<div style="margin:20px; text-align:center; vertical-align:middle;" />
-	<span id="console_log" style="color:red;"></span><br>
-	<p style="color:red;">欢迎使用WxPusher消息推送平台</p>
-	<img id="wxpusher_qrcode" style="display:none" src="" alt="登录二维码" width="120" height="120"><br>
-	<span>
-		官网：<a href="https://wxpusher.zjiecode.com/">WxPusher</a><br>
-		版本：V0.0.1<br>
-		用户：<input type="text" id="wxpusher_code" placeholder="用户信息" readonly="readonly" /><br><br>
-		声音：<select id='notification_audio'>
-			<option value="1">开启</option>
-			<option value="0">关闭</option>
-		</select>&nbsp;&nbsp;&nbsp;&nbsp;
-		显示：<select id='notification_display'>
-			<option value="1">保持</option>
-			<option value="0">自动隐藏</option>
-		</select><br><br>
-		<input type="button" id="save_options" value="保      存" style="width:100px" />
-	</span>
-	</div>
-	<script type="text/javascript" src="./js/mylib.js"></script>
-	<script type="text/javascript" src="./popup.js"></script>
-
 </body>
 
 </html>
+
+<script type="text/javascript" src="./js/save-utils.js"></script>
+<script type="text/javascript" src="./js/mylib.js"></script>
+<script type="text/javascript" src="./js/api.js"></script>
+<script type="text/javascript" src="./popup.js"></script>

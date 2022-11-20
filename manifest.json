@@ -19,7 +19,9 @@
 	},
 	"background": {
 		"scripts": [
+			"js/api.js",
 			"js/mylib.js",
+			"js/save-utils.js",
 			"background.js"
 		]
 	},
