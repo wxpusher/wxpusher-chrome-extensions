@@ -1,6 +1,3 @@
-var PERMISSON_GRANTED = "granted";
-var PERMISSON_DENIED = "denied";
-var PERMISSON_DEFAULT = "default";
 
 updateInit();
 
@@ -10,25 +7,16 @@ function updateInit() {
 	updateWsStatus();
 	initBindStatus();
 	updateUserStatus();
-	requestPermission();
+	checkUpdate();
+}
+
+//检查更新
+function checkUpdate(){
+	
+
 }
 function updateVersion(){
 	document.getElementById("version").innerText = getVersion();
-}
-
-function requestPermission() {
-	// 如果用户已经允许，直接显示消息，如果不允许则提示用户授权
-	if (Notification.permission === PERMISSON_GRANTED) {
-		consoleLog("has permission");
-	} else {
-		consoleLog("req permission");
-		Notification.requestPermission(function (res) {
-			consoleLog("req permission resutl=" + res);
-			if (res === PERMISSON_GRANTED) {
-				notify(title, options);
-			}
-		});
-	}
 }
 
 /**
@@ -70,7 +58,6 @@ function showTips(msg) {
 	}
 	wsConnectStatus.innerText = "";
 	tipsEle.setAttribute("style", "display:none;")
-
 }
 
 /**

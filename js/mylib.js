@@ -1,10 +1,15 @@
 //ws服务器下发消息类型枚举
-var WS_MSG_TYPE_HEART = 201;//收到心跳响应
+var WS_MSG_TYPE_HEART_UP = 101;//上行心跳响应
+var WS_MSG_TYPE_HEART = 201;//下行心跳响应
 var WS_MSG_TYPE_INIT = 202;//收到服务器下发初始化信息
 var WS_MSG_TYPE_ERROR = 203;//错误提示
 var WS_MSG_TYPE_UPDATE = 204;//升级提示
 var WS_MSG_TYPE_UPSH_NOTIFICATION = 20001;//推送的通知消息
 
+//发送心跳的任务
+var heartInterval = undefined;
+//ws长链接
+var socket = undefined;
 
 //是否是打开扩展程序的页面
 var inExtension = (location.href.indexOf('chrome-extension://') === 0) ? true : false;
@@ -72,6 +77,11 @@ function wsConnect(callback) {
 		if (pushToken) {
 			wsUrl += '&pushToken=' + pushToken;
 		}
+		if (socket && (socket.readyState == 1 || socket.readyState == 2)) {
+			consoleLog('WS当前链接存在或者链接中，暂时不进行链接,readyState=' + socket.readyState);
+			return;
+		}
+		consoleLog("开始ws的链接,ws=" + wsUrl);
 		socket = new WebSocket(wsUrl);
 		socket.onopen = function (e) {
 			consoleLog('webSocket连接成功');
@@ -80,8 +90,13 @@ function wsConnect(callback) {
 		socket.onclose = function (event) {
 			consoleLog("webSocket连接关闭")
 			setWsConnect(false)
+			//链接失败后，开始重新链接 
+			consoleLog("开始重新链接ws");
+			wsConnect(callback)
 		};
 		socket.onmessage = function (e) {
+			//如果没有启动心跳管理，需要启动心跳管理
+			startWsHeartLoop(callback);
 			var msg = JSON.parse(e.data);
 			if (typeof msg !== 'object') {
 				consoleLog('长链接消息内容错误');
@@ -97,7 +112,7 @@ function wsConnect(callback) {
 				return;
 			}
 			if (msg.msgType == WS_MSG_TYPE_UPDATE) {
-				//TODO 升级提示
+				consoleLog("当前插件版本过低，请升级插件，url=" + msg.url)
 				return;
 			}
 			if (msg.msgType == WS_MSG_TYPE_UPSH_NOTIFICATION) {
@@ -106,6 +121,37 @@ function wsConnect(callback) {
 			}
 		}
 	})
+}
+
+/**
+ * 开始ws的心跳轮训，如果如果
+ */
+function startWsHeartLoop(callback) {
+	if (heartInterval) {
+		return
+	}
+	consoleLog("开始ws的心跳轮训");
+	heartInterval = setInterval(function () {
+		consoleLog("发送心跳");
+		// 只读属性 readyState 表示连接状态，可以是以下值：
+		// 0 - 表示连接尚未建立。
+		// 1 - 表示连接已建立，可以进行通信。
+		// 2 - 表示连接正在进行关闭。
+		// 3 - 表示连接已经关闭或者连接不能打开。
+		if (!socket) {
+			consoleLog("socket不存在");
+			return
+		}
+		var status = socket.readyState;
+		if (status == 1) {
+			var heartBody = { "msgType": WS_MSG_TYPE_HEART_UP }
+			socket.send(JSON.stringify(heartBody));
+		} else if (status == 0 || status == 3) {
+			setWsConnect(false)
+			consoleLog("开始重新链接ws");
+			wsConnect(callback)
+		}
+	}, 30 * 1000);
 }
 
 function consoleLog(str) {

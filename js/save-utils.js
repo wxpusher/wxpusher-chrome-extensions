@@ -16,7 +16,7 @@ function getPlatform() {
 }
 
 function isWsConnect() {
-    return localStorage['isWsConnect'] || false;
+    return localStorage['isWsConnect'] == 'true' || false;
 }
 function setWsConnect(isWsConnect) {
     return localStorage['isWsConnect'] = isWsConnect;

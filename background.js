@@ -56,4 +56,5 @@ function initOrUpdatePushToken(wsInitMsg) {
 		updatePushToken(wsInitMsg.pushToken, deviceUuid, resultCallback, errorCallback);
 		return;
 	}
+	//如果没有uid，需要用户点开扩展弹出页面，扫码登陆
 }
