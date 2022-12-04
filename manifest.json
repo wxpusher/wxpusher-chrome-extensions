@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "WxPusher",
-	"version": "0.0.2",
+	"version": "1.0.0",
 	"description": "WxPusher Chrome插件（测试版）",
 	"icons": {
 		"16": "icon/16.png",
