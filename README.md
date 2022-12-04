@@ -4,7 +4,7 @@ WxPusher Chrome版客户端，兼容Window和Mac的谷歌浏览器，开着浏�
 # 安装教程
 1. 下载插件，你可以直接clone本项目，或者直接下载zip包，<a href="https://github.com/wxpusher/wxpusher-chrome-extensions/archive/refs/heads/main.zip">点击这里下载最新版本的zip</a>；
 2. 下载后解压到适当位置；
-3. 进入chrome浏览器插件管理页：你可以在浏览器里面输入：chrome://extensions/ ，或者<a href="hrome://extensions/">点击这里</a>;
+3. 进入chrome浏览器插件管理页：你可以在浏览器里面输入：chrome://extensions/ ，或者<a href="chrome://extensions/">点击这里</a>;
 4. 点击右上角，开启“**开发者模式**”（_本插件目前没有上架到Chrome Store，所以需要通过开发者的方式安装_）；
 5. 点击左上角“加载已解压的扩展程序”，选择第1步解压的文件夹；
 6. 安装完会自动弹出微信扫码登录页面，使用微信扫码完成账户的绑定即可。
