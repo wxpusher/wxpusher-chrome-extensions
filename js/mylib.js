@@ -168,8 +168,7 @@ function playAudio(file_url) {
 }
 
 function showNotification(title, text, id) {
-	var notification_audio = localStorage['notification_audio'] * 1;
-	if (notification_audio !== 0) {
+	if (getNotificationAudio()) {
 		playAudio('music/breeze.mp3');
 	}
 	chrome.notifications.create(id, {

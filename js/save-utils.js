@@ -16,7 +16,11 @@ function getPlatform() {
 }
 
 function isWsConnect() {
-    return localStorage['isWsConnect'] == 'true' || false;
+    var v = localStorage['isWsConnect'];
+    if (!v) {
+        return true;
+    }
+    return v == 'true'
 }
 function setWsConnect(isWsConnect) {
     return localStorage['isWsConnect'] = isWsConnect;
@@ -50,5 +54,17 @@ function setDeviceName(deviceName) {
 
 function getDeviceName() {
     return localStorage['deviceName'] || '';
+}
+
+function setNotificationAudio(audio) {
+    localStorage['notificationAudio'] = audio;
+}
+
+function getNotificationAudio() {
+    var v = localStorage['notificationAudio'];
+    if (!v) {
+        return true;
+    }
+    return v == 'true'
 }
 

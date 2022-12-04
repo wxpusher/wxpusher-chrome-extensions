@@ -8,6 +8,7 @@ function updateInit() {
 	initBindStatus();
 	updateUserStatus();
 	showUpdateTips();
+	listenSwitch();
 }
 
 // {
@@ -31,6 +32,23 @@ function showUpdateTips() {
 		if (data.must) {
 			updateWsStatus("请升级");
 		}
+	})
+}
+
+function listenSwitch() {
+	//监听是否打开通知声音Ô
+	var btn = document.getElementsByName("sound");
+	if (getNotificationAudio()) {
+		btn[0].setAttribute("checked", 'true')
+	} else {
+		console.log("checked=f")
+		btn[1].setAttribute("checked", 'true')
+	}
+	btn[0].addEventListener("click", function (e) {
+		setNotificationAudio(true)
+	})
+	btn[1].addEventListener("click", function (e) {
+		setNotificationAudio(false)
 	})
 }
 function updateVersion() {
