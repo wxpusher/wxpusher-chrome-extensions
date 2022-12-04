@@ -83,6 +83,9 @@ function wsConnect(callback) {
 		}
 		consoleLog("开始ws的链接,ws=" + wsUrl);
 		socket = new WebSocket(wsUrl);
+		//如果没有启动心跳管理，需要启动心跳管理
+		startWsHeartLoop(callback);
+		
 		socket.onopen = function (e) {
 			consoleLog('webSocket连接成功');
 			setWsConnect(true)
@@ -90,13 +93,8 @@ function wsConnect(callback) {
 		socket.onclose = function (event) {
 			consoleLog("webSocket连接关闭")
 			setWsConnect(false)
-			//链接失败后，开始重新链接 
-			consoleLog("开始重新链接ws");
-			wsConnect(callback)
 		};
 		socket.onmessage = function (e) {
-			//如果没有启动心跳管理，需要启动心跳管理
-			startWsHeartLoop(callback);
 			var msg = JSON.parse(e.data);
 			if (typeof msg !== 'object') {
 				consoleLog('长链接消息内容错误');
@@ -151,7 +149,7 @@ function startWsHeartLoop(callback) {
 			consoleLog("开始重新链接ws");
 			wsConnect(callback)
 		}
-	}, 30 * 1000);
+	}, 26 * 1000);
 }
 
 function consoleLog(str) {
@@ -165,13 +163,12 @@ function playAudio(file_url) {
 	audio.play();
 }
 
-function showNotification(title, text, url) {
+function showNotification(title, text, url, id) {
 	var notification_audio = localStorage['notification_audio'] * 1;
-	var notification_display = localStorage['notification_display'] * 1;
 	if (notification_audio !== 0) {
 		playAudio('music/breeze.mp3');
 	}
-	chrome.notifications.create({
+	chrome.notifications.create(id, {
 		'type': 'basic',
 		'title': title || 'WxPusher通知提醒',
 		'message': text,
@@ -190,17 +187,15 @@ function showNotification(title, text, url) {
 	});
 }
 
-function notificationsOnClicked() {
+function listenNotificationClicked() {
+	consoleLog("开始监听通知点击事件")
 	chrome.notifications.onClicked.addListener((id) => {
-		var notification_arr = JSON.parse(localStorage['notification_arr'] || '[]');
-		for (var i = 0; i < notification_arr.length; i++) {
-			if (notification_arr[i].indexOf(id + '|') === 0) {
-				chrome.tabs.create({ 'url': (notification_arr[i].split('|'))[1] });
-				notification_arr.splice(i, 1);
-				break;
-			}
-		}
-		localStorage['notification_arr'] = JSON.stringify(notification_arr);
+		consoleLog("点击通知，id=" + id)
+		//点击了以后，关闭对应的通知
+		chrome.notifications.clear(id)
+		chrome.tabs.create({
+			'url': 'https://wxpusher.zjiecode.com/api/message/' + id
+		});
 	});
 }
 

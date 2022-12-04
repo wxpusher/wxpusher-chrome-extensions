@@ -6,6 +6,7 @@ init();
  */
 function init() {
 	initStatus();
+	listenNotificationClicked();
 	chrome.runtime.onInstalled.addListener((e) => {
 		if (e.reason === chrome.runtime.OnInstalledReason.INSTALL) {
 			chrome.tabs.create({
@@ -29,7 +30,7 @@ function initStatus(){
 function initWsConnect() {
 	wsConnect(function (wsMsg) {
 		if (wsMsg.msgType === WS_MSG_TYPE_UPSH_NOTIFICATION) {
-			showNotification('WxPusher通知提醒',wsMsg.content,wsMsg.url);
+			showNotification('WxPusher通知提醒',wsMsg.content,wsMsg.url,wsMsg.qid);
 			return
 		}
 		if (wsMsg.msgType === WS_MSG_TYPE_INIT) {
