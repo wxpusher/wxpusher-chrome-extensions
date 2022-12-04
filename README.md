@@ -2,7 +2,7 @@
 WxPusher Chrome版客户端，兼容Window和Mac的谷歌浏览器，开着浏览器即可收到推送消息。
 
 # 安装教程
-1. 下载插件，你可以直接clone本项目，或者直接下载zip包，<a href="https://github.com/wxpusher/wxpusher-chrome-extensions/archive/refs/heads/main.zip">点击这里下载最新版本的zip</a>；
+1. 下载插件，你可以直接clone本项目，或者直接下载zip包，<a href="https://github.com/wxpusher/wxpusher-chrome-extensions/archive/refs/heads/main.zip">点击这里下载最新版本的插件zip包</a>；
 2. 下载后解压到适当位置；
 3. 进入chrome浏览器插件管理页：你可以在浏览器里面输入：chrome://extensions/ ，或者<a href="chrome://extensions/">点击这里</a>;
 4. 点击右上角，开启“**开发者模式**”（_本插件目前没有上架到Chrome Store，所以需要通过开发者的方式安装_）；
