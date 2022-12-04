@@ -75,9 +75,10 @@ function updatePushToken(pushToken, deviceUuid, callback, errorCallback) {
     }
  */
 function checkUpdate(bizCallBack) {
-    sajax('GET', apiHost + '/api/device/version-update', function (res) {
+    sajax('GET', apiHost + '/api/device/version-update', function (code,res) {
         var rootBody = JSON.parse(res);
         if (rootBody.code === 1007) {
+            //需要进行升级
             bizCallBack && bizCallBack(true, rootBody.data);
             return;
         }

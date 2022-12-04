@@ -85,7 +85,7 @@ function wsConnect(callback) {
 		socket = new WebSocket(wsUrl);
 		//如果没有启动心跳管理，需要启动心跳管理
 		startWsHeartLoop(callback);
-		
+
 		socket.onopen = function (e) {
 			consoleLog('webSocket连接成功');
 			setWsConnect(true)
@@ -110,7 +110,11 @@ function wsConnect(callback) {
 				return;
 			}
 			if (msg.msgType == WS_MSG_TYPE_UPDATE) {
+				consoleLog(JSON.stringify(msg))
 				consoleLog("当前插件版本过低，请升级插件，url=" + msg.url)
+				clearInterval(heartInterval)
+				heartInterval = undefined
+				showNotification(msg.title,msg.content,msg.url);
 				return;
 			}
 			if (msg.msgType == WS_MSG_TYPE_UPSH_NOTIFICATION) {
@@ -163,7 +167,7 @@ function playAudio(file_url) {
 	audio.play();
 }
 
-function showNotification(title, text, url, id) {
+function showNotification(title, text, id) {
 	var notification_audio = localStorage['notification_audio'] * 1;
 	if (notification_audio !== 0) {
 		playAudio('music/breeze.mp3');
@@ -175,15 +179,6 @@ function showNotification(title, text, url, id) {
 		'silent': true,
 		'requireInteraction': true,
 		'iconUrl': 'icon/128.png'
-	}, (id) => {
-		if (url) {
-			var notification_arr = JSON.parse(localStorage['notification_arr'] || '[]');
-			notification_arr.push(id + '|' + url);
-			while (notification_arr.length > 100) {
-				notification_arr.splice(0, 1);
-			}
-			localStorage['notification_arr'] = JSON.stringify(notification_arr);
-		}
 	});
 }
 
@@ -193,8 +188,9 @@ function listenNotificationClicked() {
 		consoleLog("点击通知，id=" + id)
 		//点击了以后，关闭对应的通知
 		chrome.notifications.clear(id)
+		var url=id.startsWith("http")?id: 'https://wxpusher.zjiecode.com/api/message/' + id
 		chrome.tabs.create({
-			'url': 'https://wxpusher.zjiecode.com/api/message/' + id
+			'url': url
 		});
 	});
 }

@@ -7,28 +7,50 @@ function updateInit() {
 	updateWsStatus();
 	initBindStatus();
 	updateUserStatus();
-	checkUpdate();
+	showUpdateTips();
 }
 
+// {
+// 	"title":"升级提示",
+// 	"content":"新的版本，请你升级",
+// 	"version":"1.0.1",
+// 	"must":false,//是否必须升级，true表示强制，不升级没法用
+// 	"url":"http://m.baidu.com" //升级的链接
+// }
 //检查更新
-function checkUpdate(){
-	
-
+function showUpdateTips() {
+	checkUpdate(function (isUpdate, data) {
+		if (!isUpdate) {
+			consoleLog("无需升级");
+			return
+		}
+		consoleLog(JSON.stringify(data));
+		var ele = " (<a target='_blank' style='color:red;' href='" + data.url + "'>新版本：" + data.version + "</a>)"
+		consoleLog("升级=" + ele);
+		document.getElementById("update_tips").innerHTML = ele;
+		if (data.must) {
+			updateWsStatus("请升级");
+		}
+	})
 }
-function updateVersion(){
+function updateVersion() {
 	document.getElementById("version").innerText = getVersion();
 }
 
 /**
  * 更新ws的链接状态
  */
-function updateWsStatus() {
+function updateWsStatus(tips) {
 	var wsConnectStatus = document.getElementById("ws-connect");
 	if (isWsConnect()) {
 		wsConnectStatus.innerText = "已链接到服务器";
 		wsConnectStatus.setAttribute("style", "color:green;")
 	} else {
-		wsConnectStatus.innerText = "未链接到服务器";
+		var text = "未链接到服务器";
+		if (tips) {
+			text = text + "，" + tips
+		}
+		wsConnectStatus.innerText = text;
 		wsConnectStatus.setAttribute("style", "color:red;")
 	}
 }
