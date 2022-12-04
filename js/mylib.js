@@ -5,11 +5,14 @@ var WS_MSG_TYPE_INIT = 202;//收到服务器下发初始化信息
 var WS_MSG_TYPE_ERROR = 203;//错误提示
 var WS_MSG_TYPE_UPDATE = 204;//升级提示
 var WS_MSG_TYPE_UPSH_NOTIFICATION = 20001;//推送的通知消息
+var HEART_TIME_SPACE = 26 * 1000;//心跳时间间隔
 
 //发送心跳的任务
 var heartInterval = undefined;
 //ws长链接
 var socket = undefined;
+//上一次收到服务器消息
+var lastServerHeart = 0;
 
 //是否是打开扩展程序的页面
 var inExtension = (location.href.indexOf('chrome-extension://') === 0) ? true : false;
@@ -95,6 +98,7 @@ function wsConnect(callback) {
 			setWsConnect(false)
 		};
 		socket.onmessage = function (e) {
+			setWsConnect(true)
 			var msg = JSON.parse(e.data);
 			if (typeof msg !== 'object') {
 				consoleLog('长链接消息内容错误');
@@ -102,6 +106,7 @@ function wsConnect(callback) {
 			}
 			if (msg.msgType == WS_MSG_TYPE_HEART) {
 				consoleLog('收到心跳响应');
+				lastServerHeart = Date.now();
 				return;
 			}
 			if (msg.msgType == WS_MSG_TYPE_INIT) {
@@ -114,7 +119,7 @@ function wsConnect(callback) {
 				consoleLog("当前插件版本过低，请升级插件，url=" + msg.url)
 				clearInterval(heartInterval)
 				heartInterval = undefined
-				showNotification(msg.title,msg.content,msg.url);
+				showNotification(msg.title, msg.content, msg.url);
 				return;
 			}
 			if (msg.msgType == WS_MSG_TYPE_UPSH_NOTIFICATION) {
@@ -142,7 +147,13 @@ function startWsHeartLoop(callback) {
 		// 3 - 表示连接已经关闭或者连接不能打开。
 		if (!socket) {
 			consoleLog("socket不存在");
+			setWsConnect(false)
 			return
+		}
+		//+10秒延迟和通讯时间
+		if (Date.now() - lastServerHeart > HEART_TIME_SPACE + 10 * 1000) {
+			consoleLog("收到服务器心跳超时，标记为链接失败");
+			setWsConnect(false)
 		}
 		var status = socket.readyState;
 		if (status == 1) {
@@ -153,7 +164,7 @@ function startWsHeartLoop(callback) {
 			consoleLog("开始重新链接ws");
 			wsConnect(callback)
 		}
-	}, 26 * 1000);
+	}, HEART_TIME_SPACE);
 }
 
 function consoleLog(str) {
@@ -187,7 +198,7 @@ function listenNotificationClicked() {
 		consoleLog("点击通知，id=" + id)
 		//点击了以后，关闭对应的通知
 		chrome.notifications.clear(id)
-		var url=id.startsWith("http")?id: 'https://wxpusher.zjiecode.com/api/message/' + id
+		var url = id.startsWith("http") ? id : 'https://wxpusher.zjiecode.com/api/message/' + id
 		chrome.tabs.create({
 			'url': url
 		});
