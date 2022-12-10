@@ -20,6 +20,8 @@ WxPusher Chrome版客户端，兼容Window和Mac的谷歌浏览器，开着浏�
 
 到这里，你已经完成了安装，所有发送到微信的消息，都会转发一份到浏览器客户端。
 
+你可以使用Demo程序，对其进行测试：<a href="https://wxpusher.zjiecode.com/demo">https://wxpusher.zjiecode.com/demo</a>
+
 # 其他说明
 1. 安装完成后可能出现“Manifest version 2 is deprecated, and support will be removed in 2023. See https://developer.chrome.com/blog/mv2-transition/ for more details.”提示，无需理会；  
 2. 如需更换账号，请卸载插件后重新安装。
