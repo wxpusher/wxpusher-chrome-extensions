@@ -20,6 +20,13 @@ self.addEventListener('activate', (event) => {
 	init();
 });
 
+// 监听消息
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+	if (message.type === 'offscreen-ready') {
+		consoleLog('Offscreen页面已准备好');
+	}
+});
+
 /**
  * 应用初始化
  */

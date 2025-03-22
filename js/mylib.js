@@ -189,17 +189,72 @@ function consoleLog(str) {
 	console.log('[' + getSysDateFormat() + ']：' + str);
 }
 
+/**
+ * 检查并创建offscreen页面
+ */
+async function createOffscreenDocumentIfNeeded() {
+	// 检查是否已经有offscreen页面
+	const offscreenUrl = chrome.runtime.getURL('offscreen.html');
+	const existingContexts = await chrome.runtime.getContexts({
+		contextTypes: ['OFFSCREEN_DOCUMENT']
+	});
+
+	// 如果已经存在offscreen页面，不需要再创建
+	if (existingContexts.some(c => c.documentUrl === offscreenUrl)) {
+		return;
+	}
+
+	// 创建offscreen页面
+	await chrome.offscreen.createDocument({
+		url: offscreenUrl,
+		reasons: ['AUDIO_PLAYBACK'],
+		justification: '用于播放通知提示音'
+	});
+}
+
+/**
+ * 关闭offscreen页面
+ */
+async function closeOffscreenDocument() {
+	try {
+		await chrome.offscreen.closeDocument();
+	} catch (e) {
+		consoleLog('关闭offscreen页面失败: ' + e);
+	}
+}
+
+/**
+ * 播放通知声音
+ */
+async function playNotificationSound() {
+	try {
+		// 确保offscreen页面已创建
+		await createOffscreenDocumentIfNeeded();
+		
+		// 发送消息到offscreen页面播放声音
+		chrome.runtime.sendMessage({
+			type: 'play-notification-sound'
+		});
+		
+		// 5秒后自动关闭offscreen页面
+		setTimeout(() => {
+			closeOffscreenDocument();
+		}, 5000);
+	} catch (error) {
+		consoleLog('播放通知声音失败: ' + error);
+	}
+}
 
 function showNotification(title, text, id) {
 	if (getNotificationAudio()) {
-		// 只记录意图，但不实际调用可能不兼容的 Audio API
-		consoleLog('需要播放通知音效');
+		// 使用offscreen API播放声音
+		playNotificationSound();
 	}
 	chrome.notifications.create(id, {
 		'type': 'basic',
 		'title': title || 'WxPusher通知提醒',
 		'message': text,
-		'silent': false, // 如果需要音频，则不静音
+		'silent': true, // 设为静音，由我们自己控制声音
 		'requireInteraction': true,
 		'iconUrl': 'icon/128.png'
 	});
@@ -271,3 +326,6 @@ self.getSysTime = getSysTime;
 self.getSysDateFormat = getSysDateFormat;
 self.getSysDateFormat2 = getSysDateFormat2;
 self.getSysDateFormat3 = getSysDateFormat3;
+self.createOffscreenDocumentIfNeeded = createOffscreenDocumentIfNeeded;
+self.closeOffscreenDocument = closeOffscreenDocument;
+self.playNotificationSound = playNotificationSound;

@@ -24,7 +24,8 @@
 	"permissions": [
 		"tabs",
 		"notifications",
-		"storage"
+		"storage",
+		"offscreen"
 	],
 	"host_permissions": [
 		"wss://*.zjiecode.com/*",
