@@ -23,8 +23,8 @@ WxPusher Chrome版客户端，兼容Window和Mac的谷歌浏览器，开着浏�
 你可以使用Demo程序，对其进行测试：<a href="https://wxpusher.zjiecode.com/demo">https://wxpusher.zjiecode.com/demo</a>
 
 # 其他说明
-1. 安装完成后可能出现“Manifest version 2 is deprecated, and support will be removed in 2023. See https://developer.chrome.com/blog/mv2-transition/ for more details.”提示，无需理会；  
-2. 如需更换账号，请卸载插件后重新安装。
+1. 当前1.1.0版本已经使用Chrome V3 API，请尽快升级到此版本；
+2. 如需更换账号，请卸载插件后重新安装；
 3. 目前浏览器插件消息会在服务器缓存24小时，浏览器关闭以后，24小时以内上线，会重新把消息发送给你，如果超过24小时，消息会被丢弃；
 4. Chrome扩展是微信公众号的拓展，绑定Chrome扩展以后，Chrome和微信公众号会同时收到消息；
 
