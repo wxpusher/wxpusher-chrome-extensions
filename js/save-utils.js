@@ -62,7 +62,7 @@ function setNotificationAudio(audio) {
 
 function getNotificationAudio() {
     var v = localStorage['notificationAudio'];
-    if (!v) {
+    if (v == undefined) {
         return true;
     }
     return v == true || v == "true"
@@ -71,11 +71,28 @@ function getNotificationAudio() {
 // 在Service Worker中使用的存储函数，使用chrome.storage.local替代localStorage
 if (typeof localStorage === 'undefined') {
     // 为Service Worker提供存储实现
-    const chromeStorageCache = {};
+    const storageData = {};
+    let storageInitialized = false;
+    const storageInitPromise = new Promise(resolve => {
+        chrome.storage.local.get(null, (items) => {
+            Object.assign(storageData, items);
+            storageInitialized = true;
+            resolve();
+        });
+    });
+
+    // 监听storage变化，保持数据同步
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'local') {
+            for (const [key, { newValue }] of Object.entries(changes)) {
+                storageData[key] = newValue;
+            }
+        }
+    });
 
     // 模拟localStorage的设置和获取操作
     function chromeStorageSet(key, value) {
-        chromeStorageCache[key] = value;
+        storageData[key] = value;
         const obj = {};
         obj[key] = value;
         chrome.storage.local.set(obj);
@@ -83,86 +100,94 @@ if (typeof localStorage === 'undefined') {
     }
 
     function chromeStorageGet(key) {
-        return chromeStorageCache[key];
+        return storageData[key];
     }
 
-    // 初始加载所有存储项到缓存
-    chrome.storage.local.get(null, (items) => {
-        Object.assign(chromeStorageCache, items);
-    });
+    // 确保在使用前数据已经初始化
+    function ensureStorageInitialized(fn) {
+        return function(...args) {
+            if (storageInitialized) {
+                return fn(...args);
+            }
+            
+            // 如果还没初始化完成，等待初始化
+            console.warn('Storage not initialized yet, falling back to default value');
+            return '';
+        };
+    }
 
     // 重新定义所有存储函数以使用chrome.storage
-    self.setVersion = function (version) {
-        chromeStorageSet('version', version);
+    self.setVersion = function(version) {
+        return chromeStorageSet('version', version);
     };
 
-    self.getVersion = function () {
+    self.getVersion = ensureStorageInitialized(function() {
         return chromeStorageGet('version') || '';
+    });
+
+    self.setPlatform = function(platform) {
+        return chromeStorageSet('platform', platform);
     };
 
-    self.setPlatform = function (platform) {
-        chromeStorageSet('platform', platform);
-    };
-
-    self.getPlatform = function () {
+    self.getPlatform = ensureStorageInitialized(function() {
         return chromeStorageGet('platform') || '';
-    };
+    });
 
-    self.isWsConnect = function () {
+    self.isWsConnect = ensureStorageInitialized(function() {
         var v = chromeStorageGet('isWsConnect');
-        if (!v) {
+        if (v == undefined) {
             return true;
         }
         return v == true || v == "true";
-    };
+    });
 
-    self.setWsConnect = function (isWsConnect) {
+    self.setWsConnect = function(isWsConnect) {
         return chromeStorageSet('isWsConnect', isWsConnect);
     };
 
-    self.getPushToken = function () {
+    self.getPushToken = ensureStorageInitialized(function() {
         return chromeStorageGet('pushToken') || '';
+    });
+
+    self.setPushToken = function(pushToken) {
+        return chromeStorageSet('pushToken', pushToken);
     };
 
-    self.setPushToken = function (pushToken) {
-        chromeStorageSet('pushToken', pushToken);
+    self.setDeviceToken = function(deviceToken) {
+        return chromeStorageSet('deviceToken', deviceToken);
     };
 
-    self.setDeviceToken = function (deviceToken) {
-        chromeStorageSet('deviceToken', deviceToken);
-    };
-
-    self.getDeviceToken = function () {
+    self.getDeviceToken = ensureStorageInitialized(function() {
         return chromeStorageGet('deviceToken') || '';
+    });
+
+    self.setDeviceUuid = function(deviceUuid) {
+        return chromeStorageSet('deviceUuid', deviceUuid);
     };
 
-    self.setDeviceUuid = function (deviceUuid) {
-        chromeStorageSet('deviceUuid', deviceUuid);
-    };
-
-    self.getDeviceUuid = function () {
+    self.getDeviceUuid = ensureStorageInitialized(function() {
         return chromeStorageGet('deviceUuid') || '';
+    });
+
+    self.setDeviceName = function(deviceName) {
+        return chromeStorageSet('deviceName', deviceName);
     };
 
-    self.setDeviceName = function (deviceName) {
-        chromeStorageSet('deviceName', deviceName);
-    };
-
-    self.getDeviceName = function () {
+    self.getDeviceName = ensureStorageInitialized(function() {
         return chromeStorageGet('deviceName') || '';
+    });
+
+    self.setNotificationAudio = function(audio) {
+        return chromeStorageSet('notificationAudio', audio);
     };
 
-    self.setNotificationAudio = function (audio) {
-        chromeStorageSet('notificationAudio', audio);
-    };
-
-    self.getNotificationAudio = function () {
+    self.getNotificationAudio = ensureStorageInitialized(function() {
         var v = chromeStorageGet('notificationAudio');
-        if (!v) {
+        if (v == undefined) {
             return true;
         }
         return v == true || v == "true";
-    };
+    });
 } else {
     // 在常规页面上下文中，导出到全局作用域
     self.setVersion = setVersion;
