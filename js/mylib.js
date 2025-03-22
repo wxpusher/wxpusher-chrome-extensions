@@ -15,7 +15,7 @@ var socket = undefined;
 var lastServerHeart = 0;
 
 //是否是打开扩展程序的页面
-var inExtension = (location.href.indexOf('chrome-extension://') === 0) ? true : false;
+var inExtension = (typeof location !== 'undefined' && location.href && location.href.indexOf('chrome-extension://') === 0) ? true : false;
 
 /**
  * 发送一个简单的http请求
@@ -29,28 +29,46 @@ function sajax(method, url, callback, errorCallback) {
  * 携带公共参数
  */
 function ajax(method, url, data, header, callback, errorCallback) {
-	var xhr = new XMLHttpRequest();
-	xhr.open((method || 'GET'), url, true);
+	// 创建请求头
+	const headers = new Headers({
+		'platform': getPlatform(),
+		'version': getVersion(),
+		'deviceToken': getDeviceToken(),
+		'Content-Type': 'application/json;charset=UTF-8'
+	});
+	
+	// 添加自定义请求头
 	if (header) {
 		for (var key in header) {
-			xhr.setRequestHeader(key, header[key]);
+			headers.append(key, header[key]);
 		}
 	}
-	xhr.setRequestHeader('platform', getPlatform());
-	xhr.setRequestHeader('version', getVersion());
-	xhr.setRequestHeader('deviceToken', getDeviceToken());
-	xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-	xhr.withCredentials = false;
-	xhr.onreadystatechange = function () {
-		if (xhr.readyState == 4) {
-			//请求完成
-			callback && callback(xhr.status, xhr.responseText);
-		}
-	}
-	xhr.onerror = function (e) {
-		errorCallback && errorCallback(e);
-	}
-	xhr.send(JSON.stringify(data));
+	
+	// 创建请求配置
+	const config = {
+		method: method || 'GET',
+		headers: headers,
+		credentials: 'omit', // 相当于 xhr.withCredentials = false
+		body: data ? JSON.stringify(data) : undefined
+	};
+	
+	// 发送fetch请求
+	fetch(url, config)
+		.then(response => {
+			// 获取响应状态和文本内容
+			const status = response.status;
+			return response.text().then(text => {
+				return { status, text };
+			});
+		})
+		.then(({ status, text }) => {
+			// 回调处理响应
+			callback && callback(status, text);
+		})
+		.catch(error => {
+			// 错误处理
+			errorCallback && errorCallback(error);
+		});
 }
 
 
@@ -171,22 +189,17 @@ function consoleLog(str) {
 	console.log('[' + getSysDateFormat() + ']：' + str);
 }
 
-function playAudio(file_url) {
-	var bell_url = chrome.runtime.getURL(file_url);
-	var audio = new Audio(bell_url);
-	audio.loop = false;
-	audio.play();
-}
 
 function showNotification(title, text, id) {
 	if (getNotificationAudio()) {
-		playAudio('music/breeze.mp3');
+		// 只记录意图，但不实际调用可能不兼容的 Audio API
+		consoleLog('需要播放通知音效');
 	}
 	chrome.notifications.create(id, {
 		'type': 'basic',
 		'title': title || 'WxPusher通知提醒',
 		'message': text,
-		'silent': true,
+		'silent': false, // 如果需要音频，则不静音
 		'requireInteraction': true,
 		'iconUrl': 'icon/128.png'
 	});
@@ -237,3 +250,24 @@ function getSysDateFormat2() {
 function getSysDateFormat3() {
 	return (new Date()).Format("hh:mm:ss.S");
 }
+
+// 将变量和函数导出到全局作用域
+self.WS_MSG_TYPE_HEART_UP = WS_MSG_TYPE_HEART_UP;
+self.WS_MSG_TYPE_HEART = WS_MSG_TYPE_HEART;
+self.WS_MSG_TYPE_INIT = WS_MSG_TYPE_INIT;
+self.WS_MSG_TYPE_ERROR = WS_MSG_TYPE_ERROR;
+self.WS_MSG_TYPE_UPDATE = WS_MSG_TYPE_UPDATE;
+self.WS_MSG_TYPE_UPSH_NOTIFICATION = WS_MSG_TYPE_UPSH_NOTIFICATION;
+self.HEART_TIME_SPACE = HEART_TIME_SPACE;
+
+self.sajax = sajax;
+self.ajax = ajax;
+self.wsConnect = wsConnect;
+self.startWsHeartLoop = startWsHeartLoop;
+self.consoleLog = consoleLog;
+self.showNotification = showNotification;
+self.listenNotificationClicked = listenNotificationClicked;
+self.getSysTime = getSysTime;
+self.getSysDateFormat = getSysDateFormat;
+self.getSysDateFormat2 = getSysDateFormat2;
+self.getSysDateFormat3 = getSysDateFormat3;

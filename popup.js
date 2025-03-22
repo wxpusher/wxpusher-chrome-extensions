@@ -1,6 +1,14 @@
-
-updateInit();
-
+// 在Chrome Manifest V3下，确保能正确访问存储
+document.addEventListener('DOMContentLoaded', function() {
+	chrome.storage.local.get(null, (items) => {
+		// 初始化localStorage
+		for (const key in items) {
+			localStorage[key] = items[key];
+		}
+		// 初始化页面
+		updateInit();
+	});
+});
 
 function updateInit() {
 	updateVersion();
@@ -46,9 +54,13 @@ function listenSwitch() {
 	}
 	btn[0].addEventListener("click", function (e) {
 		setNotificationAudio(true)
+		// 在V3中同步存储到chrome.storage
+		chrome.storage.local.set({'notificationAudio': true});
 	})
 	btn[1].addEventListener("click", function (e) {
 		setNotificationAudio(false)
+		// 在V3中同步存储到chrome.storage
+		chrome.storage.local.set({'notificationAudio': false});
 	})
 }
 function updateVersion() {
@@ -92,11 +104,11 @@ function updateUserStatus() {
 function showTips(msg) {
 	var tipsEle = document.getElementById("tips");
 	if (msg) {
-		wsConnectStatus.innerText = msg;
+		tipsEle.innerText = msg;
 		tipsEle.setAttribute("style", "display:block;")
 		return
 	}
-	wsConnectStatus.innerText = "";
+	tipsEle.innerText = "";
 	tipsEle.setAttribute("style", "display:none;")
 }
 
@@ -122,6 +134,11 @@ function initBindStatus() {
 	var resultCallback = function (data) {
 		setDeviceUuid(data.deviceUuid)
 		setDeviceToken(data.deviceToken)
+		// 在V3中同步存储到chrome.storage
+		chrome.storage.local.set({
+			'deviceUuid': data.deviceUuid,
+			'deviceToken': data.deviceToken
+		});
 		qrcodeEle.setAttribute("style", "display:none;");
 		qrcodeConEle.setAttribute("style", "display:none;");
 		updateUserStatus();
@@ -139,6 +156,7 @@ function initBindStatus() {
  * 循环尝试绑定设备，等待用户扫码后可以绑定成功
  */
 function loopBindPushToken(code, pushToken, resultCallback, errorCallback) {
+	consoleLog('开始轮训二维码扫码结果');
 	var bindInterval = setInterval(function () {
 		bindPushToken(code, pushToken, getDeviceName(), function (data) {
 			consoleLog('绑定设备成功，清理计时器');

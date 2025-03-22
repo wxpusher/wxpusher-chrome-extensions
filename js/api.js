@@ -1,4 +1,3 @@
-
 var baseHost = "wxpusher.zjiecode.com"
 var apiHost = "https://"+baseHost
 var wsHost = "wss://"+baseHost
@@ -87,3 +86,16 @@ function checkUpdate(bizCallBack) {
         bizCallBack && bizCallBack(false, '检查升级失败');
     });
 }
+
+// 将函数导出到全局作用域，以便在Service Worker中访问
+self.baseRespHanlder = baseRespHanlder;
+self.createLoginQrcode = createLoginQrcode;
+self.getQrcodeUrl = getQrcodeUrl;
+self.bindPushToken = bindPushToken;
+self.updatePushToken = updatePushToken;
+self.checkUpdate = checkUpdate;
+
+// 导出全局变量
+self.baseHost = baseHost;
+self.apiHost = apiHost;
+self.wsHost = wsHost;

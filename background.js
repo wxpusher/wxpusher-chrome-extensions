@@ -1,6 +1,25 @@
-consoleLog('开始执行background.js');
+// 导入所需的脚本
+import './js/api.js';
+import './js/mylib.js';
+import './js/save-utils.js';
 
-init();
+consoleLog('开始执行background.js Service Worker');
+
+// 监听Service Worker的安装事件
+self.addEventListener('install', (event) => {
+	consoleLog('Service Worker 安装中...');
+	self.skipWaiting(); // 确保新的Service Worker立即激活
+});
+
+// 监听Service Worker的激活事件
+self.addEventListener('activate', (event) => {
+	consoleLog('Service Worker 已激活');
+	event.waitUntil(clients.claim()); // 确保立即控制所有客户端页面
+	
+	// 初始化应用
+	init();
+});
+
 /**
  * 应用初始化
  */
@@ -8,7 +27,7 @@ function init() {
 	initStatus();
 	listenNotificationClicked();
 	chrome.runtime.onInstalled.addListener((e) => {
-		if (e.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+		if (e.reason === 'install') {
 			chrome.tabs.create({
 				'url': 'popup.html'
 			});
@@ -17,6 +36,7 @@ function init() {
 	});
 	initWsConnect();
 }
+
 function initStatus(){
 	var version = chrome.runtime.getManifest().version;
 	setVersion(version);

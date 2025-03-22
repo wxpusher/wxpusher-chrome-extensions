@@ -1,15 +1,15 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "WxPusher",
-	"version": "1.0.0",
-	"description": "WxPusher Chrome插件（测试版）",
+	"version": "1.1.0",
+	"description": "WxPusher消息推送平台 Chrome插件",
 	"icons": {
 		"16": "icon/16.png",
         "32": "icon/32.png",
         "48": "icon/48.png",
         "128": "icon/128.png"
     },
-	"browser_action": {
+	"action": {
 		"default_icon": {
 			"16": "icon/16.png",
 			"24": "icon/24.png",
@@ -18,15 +18,16 @@
 		"default_popup": "popup.html"
 	},
 	"background": {
-		"scripts": [
-			"js/api.js",
-			"js/mylib.js",
-			"js/save-utils.js",
-			"background.js"
-		]
+		"service_worker": "background.js",
+		"type": "module"
 	},
-	"permissions" : [
+	"permissions": [
 		"tabs",
-		"notifications"
+		"notifications",
+		"storage"
+	],
+	"host_permissions": [
+		"wss://*.zjiecode.com/*",
+		"https://*.zjiecode.com/*"
 	]
 }
