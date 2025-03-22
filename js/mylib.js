@@ -135,9 +135,7 @@ function wsConnect(callback) {
 			if (msg.msgType == WS_MSG_TYPE_UPDATE) {
 				consoleLog(JSON.stringify(msg))
 				consoleLog("当前插件版本过低，请升级插件，url=" + msg.url)
-				clearInterval(heartInterval)
-				heartInterval = undefined
-				showNotification(msg.title, msg.content, Date.now()+"");
+				showNotification(msg.title, msg.content, msg.url);
 				return;
 			}
 			if (msg.msgType == WS_MSG_TYPE_UPSH_NOTIFICATION) {
