@@ -22,7 +22,6 @@
 		"type": "module"
 	},
 	"permissions": [
-		"tabs",
 		"notifications",
 		"storage",
 		"offscreen"
